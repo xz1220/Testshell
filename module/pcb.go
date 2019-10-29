@@ -17,8 +17,9 @@ type PCB struct{
 	prioirty int
 	requstResource map[string]int
 	state int
-	parentID *PCB
-	childID *PCB
+	parentID string
+	childID list.List
+	next_pcb *PCB
 }
 
 //定义接收者函数
@@ -33,17 +34,39 @@ func New_PCB_no_param() *PCB{
 		prioirty:-1,
 		requstResource:init_requstResource,
 		state:uninit,
-		parentID:nil,
-		childID:nil,
+		parentID:"None",
 	}
 }
+
+func init(init *PCB){
+	//初始化资源
+	Available_list["R1"]=1
+	Available_list["R2"]=2
+	Available_list["R3"]=3
+	Available_list["R4"]=4
+
+	//
+	CurrentPID=init
+}
 		
-//定义创建函数
-func Create(pid string,prioirty int,currentPID *PCB){
+//定义创建函数 不确定是否需要在这里READY_list 是否需要导入包
+func Create(pid string,prioirty int,ready_list *READY_list) PCB{
 	pcb:=New_PCB_no_param()
 	pcb.pid=pid
 	pcb.prioirty=prioirty
-	pcb.parentID=currentPID
+	pcb.parentID=CurrentPCB.pid
+	CurrentPCB.childID.PushBack(pid)
+	if prioirty==0{
+		init(&pcb)
+	}else if prioirty==1{
+		ready_list.user.current_node=&pcb
+	}
+	else if prioirty==2{
+		ready_list.system.current_node=&pcb
+	}
+	//不确定函数内部的结构体会不会被回收
+	Schedule_after_create()
+		
 }
 		
 
