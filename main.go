@@ -69,4 +69,5 @@ func main() {
 	module.Create("init", 0)
 	module.Log()
 	ReadLine("D:/input.txt", processLine)
+	module.Show_pcb("r")
 }
