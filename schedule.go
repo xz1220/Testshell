@@ -84,6 +84,18 @@ func Selectfromready() (*PCB, int) {
 	}
 }
 
+func Selectfromblock() (*PCB, int) {
+	if Blocklist.systemhead.nextpcb != nil {
+		return Blocklist.systemhead.nextpcb, 2
+	} else if Blocklist.userhead.nextpcb != nil {
+		return Blocklist.userhead.nextpcb, 1
+	} else if Blocklist.inithead.nextpcb != nil {
+		return Blocklist.inithead.nextpcb, 0
+	} else {
+		return nil, -1
+	}
+}
+
 func Scheduleaftercreate() {
 	selectpcb, selectprioirty := Selectfromready()
 	//fmt.Println(selectprioirty)

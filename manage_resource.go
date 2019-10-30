@@ -50,3 +50,15 @@ func Release(pcb *PCB) {
 
 	Scheduleafterrelease()
 }
+
+func Release_only_one(resource string) {
+	Availablelist[resource] += CurrentPCB.occupyResource[resource]
+	CurrentPCB.occupyResource[resource] = 0
+	Scheduleafterrelease()
+}
+
+func Release_not_only_one(resource string, n int) {
+	Availablelist[resource] += n
+	CurrentPCB.occupyResource[resource] -= n
+	Scheduleafterrelease()
+}

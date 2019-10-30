@@ -5,12 +5,6 @@ import (
 	"fmt"
 )
 
-//定义常量
-const Ready = 1
-const Block = 2
-const Running = 0
-const Uninit = -1
-
 var Availablelist map[string]int
 
 //Readylist is
@@ -28,7 +22,6 @@ type PCB struct {
 	prioirty        int
 	occupyResource  map[string]int
 	requestResource map[string]int
-	state           int
 	parentID        string
 	childID         list.List
 	nextpcb         *PCB
@@ -52,7 +45,6 @@ func NewPCBnoparam() *PCB {
 		prioirty:        -1,
 		occupyResource:  initoccupyResource,
 		requestResource: initrequstResource,
-		state:           Uninit,
 		parentID:        "None",
 		nextpcb:         nil,
 	}
@@ -81,7 +73,6 @@ func Create(pid string, prioirty int) {
 	pcb := NewPCBnoparam()
 	pcb.pid = pid           //进程命名
 	pcb.prioirty = prioirty //设定进程优先级
-	pcb.state = Ready
 	if prioirty == 0 {
 		initpcb(pcb)
 	} else {
@@ -178,20 +169,54 @@ func Log() {
 }
 
 func Log_ready() {
+	fmt.Println("Ready 队列：")
 	if Readylist.userhead.nextpcb == nil {
 		fmt.Println("为空")
 	}
-
+	for point := Readylist.inithead; point.nextpcb != nil; point = point.nextpcb {
+		fmt.Println("user里面的", point.nextpcb.pid)
+	}
 	for point := Readylist.userhead; point.nextpcb != nil; point = point.nextpcb {
+		fmt.Println("user里面的", point.nextpcb.pid)
+	}
+	for point := Readylist.systemhead; point.nextpcb != nil; point = point.nextpcb {
 		fmt.Println("user里面的", point.nextpcb.pid)
 	}
 }
 
 func Log_block() {
-	for point := Blocklist.userhead; point != nil; point = point.nextpcb {
-		fmt.Println("user里面的", point.pid)
+	fmt.Println("Block 队列：")
+	if Blocklist.userhead.nextpcb == nil {
+		fmt.Println("为空")
+	}
+	for point := Blocklist.inithead; point.nextpcb != nil; point = point.nextpcb {
+		fmt.Println("user里面的", point.nextpcb.pid)
+	}
+	for point := Blocklist.userhead; point.nextpcb != nil; point = point.nextpcb {
+		fmt.Println("user里面的", point.nextpcb.pid)
+	}
+	for point := Blocklist.systemhead; point.nextpcb != nil; point = point.nextpcb {
+		fmt.Println("user里面的", point.nextpcb.pid)
 	}
 }
 func Logres() {
 	fmt.Println(" R1:", Availablelist["R1"], " R2:", Availablelist["R2"], " R3:", Availablelist["R3"], " R4:", Availablelist["R4"])
+}
+
+func List_all_resource() {
+	fmt.Println("可用资源")
+	Logres()
+	fmt.Println("被占用资源")
+	Logres()
+}
+
+func List_all_process() {
+	Log_ready()
+	Log_block()
+}
+
+func Show_pcb(pid string) {
+	_, point := findpcb(pid)
+	fmt.Println("进程的PID为：", point.pid,
+		"   进程的")
 }
