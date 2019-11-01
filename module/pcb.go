@@ -138,6 +138,7 @@ func killchild(child list.List) {
 			if ok == true {
 				pre, point, _, _ := findpcb(value)
 				Delpcbfromlist(pre, point)
+				Release(point)
 				killchild(point.childID)
 			} else {
 				fmt.Println("类型转化出错")
@@ -165,7 +166,7 @@ func Destory(pid string) {
 	//fmt.Println(pre.pid, point.pid)
 
 	killtree(pre, point)
-	Release(point)
+
 	Scheduleafterdestory()
 }
 
