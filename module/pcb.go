@@ -94,49 +94,54 @@ func Delpcbfromlist(pre *PCB, current *PCB) *PCB {
 	return current
 }
 
-func findpcblist(pid string, pcblist *PCBlist) (*PCB, *PCB) {
+func findpcblist(pid string, pcblist *PCBlist) (*PCB, *PCB, string) {
 	for point := pcblist.inithead; point.nextpcb != nil; point = point.nextpcb {
 		if point.nextpcb.pid == pid {
-			return point, point.nextpcb
+			return point, point.nextpcb, "init"
 		}
 	}
 	for point := pcblist.userhead; point.nextpcb != nil; point = point.nextpcb {
 		if point.nextpcb.pid == pid {
-			return point, point.nextpcb
+			return point, point.nextpcb, "user"
 		}
 	}
 	for point := pcblist.systemhead; point.nextpcb != nil; point = point.nextpcb {
 		if point.nextpcb.pid == pid {
-			return point, point.nextpcb
+			return point, point.nextpcb, "system"
 		}
 	}
-	return nil, nil
+	return nil, nil, "None"
 }
 
-func findpcb(pid string) (*PCB, *PCB) {
-	pre1, point1 := findpcblist(pid, Readylist)
-	pre2, point2 := findpcblist(pid, Blocklist)
+func findpcb(pid string) (*PCB, *PCB, string, string) {
+
+	pre1, point1, prio1 := findpcblist(pid, Readylist)
+	pre2, point2, prio2 := findpcblist(pid, Blocklist)
 	if point1 != nil {
-		return pre1, point1
+		return pre1, point1, prio1, "ready"
 	} else if point2 != nil {
-		return pre2, point2
+		return pre2, point2, prio2, "block"
 	} else if CurrentPCB.pid == pid {
-		return nil, CurrentPCB
+		return nil, CurrentPCB, "None", "current"
 	} else {
-		return nil, nil
+		return nil, nil, "None", "None"
 	}
 }
 
-//这里应该是递归
 func killchild(child list.List) {
-	for i := child.Front(); i != nil; i = i.Next() {
-		value, ok := interface{}(i.Value).(string)
-		fmt.Println("xiong di meng", value)
-		if ok == true {
-			pre, point := findpcb(value)
-			Delpcbfromlist(pre, point)
-		} else {
-			fmt.Println("类型转化出错")
+	if child.Len() == 0 {
+
+	} else {
+		for i := child.Front(); i != nil; i = i.Next() {
+			value, ok := interface{}(i.Value).(string)
+			fmt.Println("xiong di meng", value)
+			if ok == true {
+				pre, point, _, _ := findpcb(value)
+				Delpcbfromlist(pre, point)
+				killchild(point.childID)
+			} else {
+				fmt.Println("类型转化出错")
+			}
 		}
 	}
 }
@@ -156,7 +161,7 @@ func killtree(pre *PCB, point *PCB) {
 }
 
 func Destory(pid string) {
-	pre, point := findpcb(pid)
+	pre, point, _, _ := findpcb(pid)
 	//fmt.Println(pre.pid, point.pid)
 
 	killtree(pre, point)
@@ -207,16 +212,38 @@ func List_all_resource() {
 	fmt.Println("可用资源")
 	Logres()
 	fmt.Println("被占用资源")
-	Logres()
+	fmt.Println(" R1:", 1-Availablelist["R1"], " R2:", 2-Availablelist["R2"], " R3:", 3-Availablelist["R3"], " R4:", 4-Availablelist["R4"])
 }
 
 func List_all_process() {
+	fmt.Println("当前正在执行的PCB为：", CurrentPCB.pid)
 	Log_ready()
 	Log_block()
 }
 
 func Show_pcb(pid string) {
-	_, point := findpcb(pid)
+	fmt.Println("\n 查询的PCB为：", pid)
+	_, point, prio, state := findpcb(pid)
 	fmt.Println("进程的PID为：", point.pid,
-		"   进程的")
+		"   进程的优先级为：", prio,
+		"   进程的状态为：", state,
+		"\n进程所占用的资源为",
+		"R1:", point.occupyResource["R1"],
+		"R2:", point.occupyResource["R2"],
+		"R3:", point.occupyResource["R3"],
+		"R4:", point.occupyResource["R4"],
+		"\n进程所请求的资源为：",
+		"R1:", point.requestResource["R1"],
+		"R2:", point.requestResource["R2"],
+		"R3:", point.requestResource["R3"],
+		"R4:", point.requestResource["R4"],
+		"\n进程的父亲为：", point.parentID)
+	if point.childID.Len() == 0 {
+		fmt.Println(point.pid, "无子孙")
+	} else {
+		fmt.Println(point.pid, "的子孙有:")
+		for item := point.childID.Front(); item != nil; item = item.Next() {
+			fmt.Println(item.Value)
+		}
+	}
 }
