@@ -3,6 +3,7 @@ package main
 import (
 	"Testshell/module"
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -70,4 +71,8 @@ func main() {
 	module.Log()
 	ReadLine("D:/input.txt", processLine)
 	module.Show_pcb("r")
+	fmt.Println()
+	module.List_all_process()
+	fmt.Println()
+	module.List_all_resource()
 }
