@@ -1,3 +1,4 @@
+
 # 操作系统实验
 设计和实现进程与资源管理，并完成Test shell的编写，本次版本使用的是go语言。
 ## 数据结构
@@ -6,19 +7,26 @@
 PCB:
    	pid: 进程名称
 	requsetResource: 进程所需求的资源
-	status: 进程的状态 ready block running
+	occupyResource: 进程占用的资源
 	parent：父亲进程
 	child：子进程
 	priority：进程优先级
+	nextPCB： 指向下一个PCB的指针
+	
+PCBlist：
+	inithead:init链表的头节点指针
+	userhead:user链表的头节点指针
+	systemhead:system链表的头节点指针
+	
 	
 就绪队列 READY_LIST：
-数组+单链表：
-	数组表示优先级 0（init）、1（user），2（system）
-	每个数组元素存储着一个就绪队列里面的head指针
+结构体+单链表：
+	结构体成员表示优先级 0（init）、1（user），2（system）
+	每一个成员对应一个PCB 单链表
 	
 阻塞队列 BLOCK_LIST:
-list：
-	存储着组设的PCB
+结构体+单链表：
+	同READY_LIST
 
 剩余资源列表 available_list:
 map:
@@ -50,4 +58,4 @@ map:
 定义就绪队列以及阻塞队列
 
 ### 系统控制模块：
-
+读取文件，执行相应指令
