@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+// processline is to execute the function accroding to the bytes
 func processLine(line []byte) {
 	//os.Stdout.Write(line)
 	command := string(line[:])
@@ -45,6 +46,7 @@ func processLine(line []byte) {
 	}
 }
 
+// Readline is to read the context from specific file.
 func ReadLine(filePth string, hookfn func([]byte)) error {
 	f, err := os.Open(filePth)
 	if err != nil {
@@ -66,6 +68,7 @@ func ReadLine(filePth string, hookfn func([]byte)) error {
 	return nil
 }
 
+//naub function is ....
 func main() {
 	module.Create("init", 0)
 	module.Log()
